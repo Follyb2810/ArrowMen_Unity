@@ -1,93 +1,90 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    private readonly float walkSpeed = 0.5f;
+    [Header("Movement Settings")]
+    public float walkSpeed = 0.5f;                 // Enemy movement speed
+    private bool isFacingLeft = true;             // Tracks current facing direction
 
-    public Transform groundCheckPoint;
-    public float distance = 0.3f;
-    public LayerMask groundLayer;
+    [Header("Ground Check Settings")]
+    public Transform groundCheckPoint;            // Point to cast ray downward to check for edges
+    public float distance = 0.3f;                 // Length of ground check ray
+    public LayerMask groundLayer;                 // Layer considered as ground
 
-    private bool isFacingLeft;
-    public float attackRangeRadius = 6f;
-    public LayerMask targetLayers;
-
+    [Header("Player Detection Settings")]
+    public float attackRangeRadius = 6f;          // Radius to detect player
+    public LayerMask targetLayers;                // Layers considered as targets
 
     void Start()
     {
+        // Enemy starts facing left
         isFacingLeft = true;
     }
 
     void Update()
     {
-        // Determine movement direction
-        // If facing left → move -1
-        // If facing right → move +1
-        float direction = isFacingLeft ? -1 : 1;
+        // 1️⃣ Detect player in attack range
         Collider2D collInfo = Physics2D.OverlapCircle(transform.position, attackRangeRadius, targetLayers);
         if (collInfo)
         {
-            Debug.Log("we are close to player");
+            // Player detected within range
+            Debug.Log("Player nearby: " + collInfo.name);
+            // TODO: Add attack or chase behavior here
         }
         else
         {
+            // 2️⃣ Patrol movement
+            Patrol();
+        }
+    }
 
-            // Move the enemy horizontally
-            // Time.deltaTime makes movement frame-rate independent
-            transform.Translate(direction * Time.deltaTime * walkSpeed * Vector2.right);
+    void Patrol()
+    {
+        // Determine movement direction
+        float direction = isFacingLeft ? -1 : 1;
 
-            // transform.Translate(Vector2.right * direction * walkSpeed * Time.deltaTime);
-            // transform.position += new Vector3(walkSpeed * Time.deltaTime, 0f, 0f); 
-            // transform.Translate(new Vector3(walkSpeed * Time.deltaTime, 0f, 0f), Space.Self); transform.Translate(Time.deltaTime * walkSpeed * Vector2.left, Space.Self); // RaycastHit hit; // RaycastHit2D ray = Physics.Raycast(groundCheckPoint.position, Vector3.down, out hit, distance, groundLayer);
+        // Move horizontally
+        transform.Translate(Vector2.right * direction * walkSpeed * Time.deltaTime);
 
-            // Shoot a ray downward from the groundCheckPoint
-            // This checks if there is ground ahead
+        // 3️⃣ Ground detection using raycast
+        RaycastHit2D hitInfo = Physics2D.Raycast(
+            groundCheckPoint.position,  // Ray start
+            Vector2.down,               // Ray direction
+            distance,                   // Ray length
+            groundLayer                 // Only hit ground layer
+        );
 
-            // RaycastHit hit; 
-            // RaycastHit2D ray = Physics.Raycast(groundCheckPoint.position, Vector3.down, out hit, distance, groundLayer);
-            // RaycastHit2D hitInfo = Physics2D.Raycast(groundCheckPoint.position, Vector2.down, distance, groundLayer); 
-            // var hitInfo = Physics.Raycast(groundCheckPoint.position, Vector2.down, out hit, distance, groundLayer); 
-            // if (hitInfo)
-            // if (Physics.Raycast(groundCheckPoint.position, groundCheckPoint.forward, out hit, 10f))
-            RaycastHit2D hitInfo = Physics2D.Raycast(
-                groundCheckPoint.position,  // Starting position of the ray
-                Vector2.down,               // Direction of the ray
-                distance,                   // Length of the ray
-                groundLayer                 // Only detect objects in this layer
-            );
-
-            // If the ray DOES NOT hit ground
-            if (!hitInfo)
-            {
-                // Turn the enemy around
-                Flip();
-            }
+        // If no ground detected ahead → flip direction
+        if (!hitInfo)
+        {
+            Flip();
         }
     }
 
     void Flip()
     {
-        // Reverse the facing direction
+        // Reverse facing direction
         isFacingLeft = !isFacingLeft;
 
-        // Flip the sprite by reversing its X scale
+        // Flip sprite horizontally by inverting localScale.x
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
-        // transform.Rotate(0f, -180f, 0f); 
-        // transform.eulerAngles = new Vector3(0f, -180f, 0f);
-        // transform.eulerAngles = new Vector3(0f, 180f, 0f);
     }
 
     private void OnDrawGizmosSelected()
     {
-        // Prevent errors if the checkpoint isn't assigned
-        if (groundCheckPoint == null) return;
+        // Draw the ground check ray in the Scene view
+        if (groundCheckPoint != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(groundCheckPoint.position, Vector2.down * distance);
+        }
 
-        // Draw the ray in the editor so you can see where the ground check happens
-        Gizmos.color = Color.red;
-
-        // Draw a ray downward from the checkpoint
-        Gizmos.DrawRay(groundCheckPoint.position, Vector2.down * distance);
+        // Draw player detection radius in yellow
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, attackRangeRadius);
     }
 }
