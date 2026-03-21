@@ -5,7 +5,7 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float walkSpeed = 0.5f;                 // Enemy movement speed
+    public float walkSpeed = 0.9f;                 // Enemy movement speed
     private bool isFacingLeft = true;             // Tracks current facing direction
 
     [Header("Ground Check Settings")]
@@ -16,6 +16,18 @@ public class Enemy : MonoBehaviour
     [Header("Player Detection Settings")]
     public float attackRangeRadius = 6f;          // Radius to detect player
     public LayerMask targetLayers;                // Layers considered as targets
+
+    private Animator enemyAnimator;
+
+    public Transform playerTranform;
+    public float chaseSpeed = 2f;
+    private float retrieveDistance = 3f;
+
+    void Awake()
+    {
+        enemyAnimator = GetComponent<Animator>();
+    }
+
 
     void Start()
     {
@@ -29,9 +41,35 @@ public class Enemy : MonoBehaviour
         Collider2D collInfo = Physics2D.OverlapCircle(transform.position, attackRangeRadius, targetLayers);
         if (collInfo)
         {
+            if (playerTranform.position.x > transform.position.x && isFacingLeft)
+            {
+                Flip();
+
+
+                isFacingLeft = false;
+            }
+            else
+            {
+                Flip();
+                isFacingLeft = true;
+            }
             // Player detected within range
             Debug.Log("Player nearby: " + collInfo.name);
-            // TODO: Add attack or chase behavior here
+            Debug.Log("Player position: collInfo" + collInfo.transform.position.ToString());
+            Debug.Log("Player real postion: playerTranform" + playerTranform.transform.position.ToString());
+            Vector2 targetPos = new Vector2(playerTranform.position.x, transform.position.y);
+            if (Vector2.Distance(transform.position, targetPos) >= retrieveDistance)
+            {
+
+                transform.position = Vector2.MoveTowards(transform.position, targetPos, chaseSpeed * Time.deltaTime);
+                enemyAnimator.SetBool("isAttack", false);
+            }
+            else
+            {
+                enemyAnimator.SetBool("isAttack", true);
+
+            }
+            // transform.position = Vector2.MoveTowards(transform.position, playerTranform.transform.position, chaseSpeed * Time.deltaTime);
         }
         else
         {
@@ -46,7 +84,7 @@ public class Enemy : MonoBehaviour
         float direction = isFacingLeft ? -1 : 1;
 
         // Move horizontally
-        transform.Translate(Vector2.right * direction * walkSpeed * Time.deltaTime);
+        transform.Translate(direction * Time.deltaTime * walkSpeed * Vector2.right);
 
         // 3️⃣ Ground detection using raycast
         RaycastHit2D hitInfo = Physics2D.Raycast(
@@ -72,6 +110,10 @@ public class Enemy : MonoBehaviour
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
+
+        // transform.Rotate(0f, -180f, 0f); 
+        // transform.eulerAngles = new Vector3(0f, -180f, 0f);
+        // transform.eulerAngles = new Vector3(0f, 180f, 0f);
     }
 
     private void OnDrawGizmosSelected()
@@ -87,4 +129,6 @@ public class Enemy : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, attackRangeRadius);
     }
+
+
 }

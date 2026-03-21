@@ -14,9 +14,9 @@ public class Arrow : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // rb = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
         // Give the arrow velocity in the direction it’s facing
-        // rb.velocity = transform.right * arrowSpeed;
+        rb.velocity = transform.right * arrowSpeed;
         // transform.right points along the arrow’s local X axis
         // This works even if player is flipped horizontally
         Destroy(gameObject, destroyTime);

@@ -105,7 +105,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 3
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -115,7 +115,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!61 &9197897927889778637
 BoxCollider2D:
@@ -175,13 +175,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
-  jumpHeight: 7
-  rb: {fileID: 8787934388055800788}
+  jumpForce: 10
+  arrowSpeed: 10
   groundCheckPoint: {fileID: 4504223355642453029}
   groundCheckRadius: 0.2
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  rb: {fileID: 8787934388055800788}
   arrowPrefab: {fileID: 4500353259909630743, guid: 87b47de13ed8d499b897b75a6b6fdd8d, type: 3}
   firePoint: {fileID: 5534599555697492433}
 --- !u!95 &2848646511134057650

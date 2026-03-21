@@ -51,7 +51,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1156989050251272131
 Transform:
   m_ObjectHideFlags: 0
@@ -132,6 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f62c63194de4461ca917aed170c7915, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  walkSpeed: 0.5
   groundCheckPoint: {fileID: 6906072166917657059}
   distance: 1
   groundLayer:
@@ -140,7 +141,9 @@ MonoBehaviour:
   attackRangeRadius: 6
   targetLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
+  playerTranform: {fileID: 0}
+  chaseSpeed: 2
 --- !u!95 &6538130688751304112
 Animator:
   serializedVersion: 5
